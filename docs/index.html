@@ -1,1 +1,236 @@
 
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>HorizenSearch</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            background: #0f0f12;
+            color: #f1f1f4;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+        /* Top Navigation Header Bar */
+        .toolbar {
+            background: linear-gradient(90deg, #16161a 0%, #1a1a24 100%);
+            padding: 12px 20px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+        }
+        /* Sleek Button Controls */
+        .btn {
+            background: #23232f;
+            color: #a5a5b5;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        .btn:hover {
+            background: #6366f1;
+            color: white;
+            box-shadow: 0 0 12px rgba(99, 102, 241, 0.4);
+            border-color: transparent;
+        }
+        /* Modern Address Bar */
+        .address-bar {
+            flex-grow: 1;
+            padding: 0 16px;
+            height: 36px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            background: #0f0f14;
+            color: #e2e8f0;
+            outline: none;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        .address-bar:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
+        }
+        /* Combined Web Container Layout */
+        .view-container {
+            flex-grow: 1;
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        /* Embedded Web Engine View */
+        webview {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 1;
+            display: none; /* Hidden by default until a website is loaded */
+        }
+        webview.active {
+            display: flex;
+        }
+        /* Built-In Interactive Dashboard Page */
+        .homepage {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at top right, #1e1b4b 0%, #09090b 60%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            padding: 20px;
+            transition: opacity 0.3s ease;
+        }
+        .homepage.hidden {
+            opacity: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .brand-logo {
+            font-size: 48px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, #a5b4fc 0%, #6366f1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+        .brand-tagline {
+            color: #71717a;
+            font-size: 16px;
+            margin-bottom: 32px;
+        }
+        /* Homepage Quick Search UI */
+        .home-search-box {
+            width: 100%;
+            max-width: 580px;
+            display: flex;
+            gap: 12px;
+            background: rgba(30, 30, 40, 0.6);
+            padding: 8px;
+            border-radius: 12px;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            margin-bottom: 40px;
+        }
+        .home-search-input {
+            flex-grow: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: white;
+            padding: 0 12px;
+            font-size: 16px;
+        }
+        .home-search-btn {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        .home-search-btn:hover {
+            background: #4f46e5;
+        }
+        /* Shortcut Grid Links */
+        .shortcuts-grid {
+            display: flex;
+            gap: 16px;
+            max-width: 580px;
+            width: 100%;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .shortcut-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 14px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            color: #a1a1aa;
+            font-size: 14px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .shortcut-card:hover {
+            background: rgba(255, 255, 255, 0.07);
+            color: white;
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        .shortcut-icon {
+            font-size: 16px;
+            color: #818cf8;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation Controls -->
+    <div class="toolbar">
+        <button class="btn" id="backBtn" title="Back">◀</button>
+        <button class="btn" id="forwardBtn" title="Forward">▶</button>
+        <button class="btn" id="reloadBtn" title="Reload">🔄</button>
+        <button class="btn" id="homeBtn" title="Go to Home">🏠</button>
+        <input type="text" id="urlInput" class="address-bar" placeholder="Enter URL or search query...">
+        <button class="btn" id="goBtn" style="width: auto; padding: 0 16px; font-weight: 600;">Go</button>
+    </div>
+
+    <!-- Main View Window Space -->
+    <div class="view-container">
+        <!-- Custom Embedded Dashboard -->
+        <div class="homepage" id="customHomepage">
+            <h1 class="brand-logo">HorizenSearch</h1>
+            <p class="brand-tagline">Explore the web with no boundaries</p>
+            
+            <div class="home-search-box">
+                <input type="text" class="home-search-input" id="homeSearchInput" placeholder="Search the web securely...">
+                <button class="home-search-btn" id="homeSearchBtn">Search</button>
+            </div>
+
+            <div class="shortcuts-grid">
+                <a class="shortcut-card" data-url="https://github.com"><span class="shortcut-icon">🐙</span> GitHub</a>
+                <a class="shortcut-card" data-url="https://youtube.com"><span class="shortcut-icon">📺</span> YouTube</a>
+                <a class="shortcut-card" data-url="https://wikipedia.org"><span class="shortcut-icon">📚</span> Wikipedia</a>
+                <a class="shortcut-card" data-url="https://reddit.com"><span class="shortcut-icon">💬</span> Reddit</a>
+            </div>
+        </div>
+
+        <!-- System Webview Frame -->
+        <webview id="view"></webview>
+    </div>
+
+    <script src="renderer.js"></script>
+</body>
+</html>
