@@ -62,4 +62,4 @@ document.querySelectorAll('.shortcut-card').forEach(card => {
         e.preventDefault();
         navigateTo(card.getAttribute('data-url'));
     });
-});
+}); 
